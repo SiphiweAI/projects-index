@@ -1,0 +1,35 @@
+name: Update Project Catalog
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:  # allow manual trigger
+
+permissions:
+  contents: write  # needed to push updates
+
+jobs:
+  update-catalog:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Run catalog updater
+        run: |
+          pip install --upgrade pip
+          python update_catalog.py
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add PROJECTS.md
+          git commit -m "Auto-update PROJECTS.md [skip ci]" || echo "No changes to commit"
+          git push
